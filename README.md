@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎉 CheerClub Converter
 
-## Getting Started
+<p align="center">
+  <img src="./docs/logoBanner.jpg" title="Logo" width="100%"/>
+</p>
 
-First, run the development server:
+<p align="center">
+  <img src="https://img.shields.io/badge/Platform-Web-4285F4?logo=googlechrome" />
+  <img src="https://img.shields.io/github/license/Kimmuie/CheerClubConverter" />
+  <img src="https://img.shields.io/github/stars/Kimmuie/CheerClubConverter?style=social" />
+</p>
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Overview
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**CheerClub Converter** is a web application designed to make creating **แปรอักษร (Cheer Code)** sheets easier and faster.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Simply upload an image of your cheer design and convert it into a **print-ready PDF template** for use during rehearsals and performances.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+No more manually recreating grids or preparing templates from scratch — **upload, convert, and get ready to cheer.**
 
-## Learn More
+## 🚀 Features
 
-To learn more about Next.js, take a look at the following resources:
+| Feature               | Description                                                          |
+| --------------------- | -------------------------------------------------------------------- |
+| **Image to Template** | Convert a cheer design image into a structured template.             |
+| **PDF Export**        | Generate a printable PDF for use during rehearsals and performances. |
+| **Grid Generation**   | Automatically create a grid layout based on the uploaded design.     |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📥 Getting Started
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Try CheerClub Converter online:
 
-## Deploy on Vercel
+**https://example.com/**
+## 🖥 Built With
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+<table>
+<tr align="center">
+  <td width="100">
+    <a href="https://nextjs.org/" title="Nextjs">
+      <img src="https://skillicons.dev/icons?i=nextjs" width="48" alt="React" />
+    </a>
+  </td>
+  <td width="100">
+    <a href="https://tailwindcss.com" title="Tailwind" >
+      <img src="https://skillicons.dev/icons?i=tailwind" width="48" alt="Tailwind" />
+    </a>
+  </td>
+  <td width="100">
+    <a href="https://supabase.com/" title="Supabase">
+      <img src="https://skillicons.dev/icons?i=supabase" width="48" alt="React" />
+    </a>
+  </td>
+  <td width="100">
+    <a href="https://vercel.com" title="Vercel">
+      <img src="https://skillicons.dev/icons?i=vercel" width="48" alt="Vercel" />
+    </a>
+  </td>
+</tr>
+<tr align="center">
+  <td>React</td>
+  <td>Tailwind</td>
+  <td>Supabase</td>
+  <td>Vercel</td>
+</tr>
+</table>
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📸 Screenshots
+
+<table>
+<tr>
+<td align="center">
+  <img src="./docs/UI1.png" width="100%"/>
+</td>
+<td align="center">
+  <img src="./docs/UI2.png" width="100%"/>
+</td>
+</tr>
+</table>
+
+## 🎯 Use Cases
+
+CheerClub Converter can be used for:
+* 🎉 Sports days
+* 🎉 Jaturamitr
+* 🎉 CUTU
+
+## ⭐ Support
+
+If CheerClub Converter helps you prepare for your next performance, consider giving this repository a ⭐.
+
+It helps support future development and makes the project easier for others to discover.
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
