@@ -11,7 +11,7 @@
 // can be unit tested without a DOM/jsPDF instance.
 
 import { jsPDF } from "jspdf";
-import type { ConversionResult, ExportOptions, Palette, PlateGrid } from "@/src/types";
+import type { ConversionResult, ExportOptions, Palette, PlateGrid } from "@/types";
 
 const PAGE_SIZES: Record<ExportOptions["pageSize"], [number, number]> = {
   A4: [210, 297],

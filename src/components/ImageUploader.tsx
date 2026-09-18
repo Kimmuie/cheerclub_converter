@@ -5,7 +5,7 @@
 
 import { useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
-import { useConverterStore } from "./store/useConverterStore";
+import { useConverterStore } from "@/store/useConverterStore";
 import type { ImageAsset, ImageFormat } from "@/types";
 
 const ACCEPTED_EXTENSIONS: ImageFormat[] = ["bmp", "png", "jpg", "jpeg"];

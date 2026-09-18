@@ -7,7 +7,7 @@
 // plateSize.columns` cells. Plates are labelled in reading order: row letters
 // (A, B, C, ...) x column numbers (1, 2, 3, ...), matching the printed layout.
 
-import type { ImageAsset, Palette, PlateGrid, PlateSize } from "@/src/types";
+import type { ImageAsset, Palette, PlateGrid, PlateSize } from "@/types";
 import { createPaletteMatcher, type RGB } from "./colorUtils";
 
 export class ConversionError extends Error {}

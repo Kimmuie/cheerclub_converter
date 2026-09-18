@@ -1,7 +1,7 @@
 // src/lib/colorUtils.ts
 // Pure color-math helpers used by the pixel-to-palette conversion step.
 
-import type { PaletteColor } from "@/src/types";
+import type { PaletteColor } from "@/types";
 
 export interface RGB {
   r: number;

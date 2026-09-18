@@ -14,7 +14,7 @@ import type {
   ImageAsset,
   Palette,
   PlateSize,
-} from "./types";
+} from "@/types";
 
 interface ConverterState {
   groups: Group[];

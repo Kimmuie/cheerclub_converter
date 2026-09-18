@@ -1,5 +1,6 @@
-import Dashboard from "@/src/components/projects/Dashboard";
+// src/app/page.tsx
+import GroupsList from "@/components/GroupsList";
 
-export default function Home() {
-  return <Dashboard />;
+export default function HomePage() {
+  return <GroupsList />;
 }

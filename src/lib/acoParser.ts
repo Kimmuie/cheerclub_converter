@@ -3,7 +3,7 @@
 // Pure function, no DOM/browser dependencies beyond ArrayBuffer/DataView,
 // so it is unit-testable in isolation.
 
-import type { PaletteColor } from "@/src/types";
+import type { PaletteColor } from "@/types";
 
 export class AcoParseError extends Error {}
 
