@@ -5,6 +5,9 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "CheerClub Converter",
   description: "ACO palette + bitmap to printable plate/grid PDF converter",
+  icons: {
+    icon: '/logoWhiteBG.png', 
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
