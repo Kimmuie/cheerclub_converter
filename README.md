@@ -30,7 +30,7 @@ No more manually recreating grids or preparing templates from scratch — **uplo
 
 Try CheerClub Converter online:
 
-**https://example.com/**
+**https://cheerclub-converter.vercel.app/**
 ## 🖥 Built With
 
 <table>
