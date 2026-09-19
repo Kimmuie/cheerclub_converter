@@ -2,9 +2,13 @@
 
 // src/components/PlateMatrixForm.tsx
 // Row/Column plate size inputs with positive-integer validation.
+// Logic is unchanged from your working version — only the markup/classes
+// were restyled to match the new panel design.
 
 import { useState } from "react";
+import { Grid2x2, Minus, Plus } from "lucide-react";
 import { useConverterStore } from "@/store/useConverterStore";
+import SectionCard from "@/components/SectionCard";
 
 export default function PlateMatrixForm({ groupId }: { groupId: string }) {
   const plateSize = useConverterStore((s) => s.getGroup(groupId)?.plateSize);
@@ -31,50 +35,51 @@ export default function PlateMatrixForm({ groupId }: { groupId: string }) {
   };
 
   return (
-    <section className="rounded-lg border border-gray-200 p-4">
-      <h2 className="mb-3 font-semibold">3. Plate Size</h2>
-      <div className="grid grid-cols-2 gap-4">
+    <SectionCard icon={Grid2x2} title="Plate Size">
+      <div className="flex gap-3">
         {(["rows", "columns"] as const).map((field) => (
-          <div key={field}>
-            <label className="mb-1 block text-xs uppercase tracking-wide text-gray-500">
-              {field}
+          <div key={field} className="flex-1 rounded-lg border border-gray-200 p-3">
+            <label className="mb-2 block text-[11px] font-medium uppercase tracking-wide text-gray-400">
+              {field === "rows" ? "Matrix Rows" : "Matrix Columns"}
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between">
               <button
                 type="button"
                 onClick={() => adjust(field, -1)}
-                className="h-8 w-8 rounded border border-gray-300 text-sm"
+                className="flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer"
                 aria-label={`Decrease ${field}`}
               >
-                −
+                <Minus className="h-3.5 w-3.5" />
               </button>
               <input
                 type="number"
                 min={1}
                 value={plateSize[field]}
                 onChange={(e) => onDirectChange(field, e.target.value)}
-                className="w-16 rounded border border-gray-300 px-2 py-1 text-center text-sm"
+                className="w-12 border-none bg-transparent text-center text-lg font-bold text-gray-900 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
               <button
                 type="button"
                 onClick={() => adjust(field, 1)}
-                className="h-8 w-8 rounded border border-gray-300 text-sm"
+                className="flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer"
                 aria-label={`Increase ${field}`}
               >
-                +
+                <Plus className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
         ))}
       </div>
+
       {error && (
-        <p role="alert" className="mt-2 text-xs text-red-600">
+        <p role="alert" className="mt-3 text-xs text-red-600">
           {error}
         </p>
       )}
-      <p className="mt-2 text-xs text-gray-400">
+
+      <p className="mt-3 text-xs text-gray-400">
         Example: 4 × 5 means each plate is a 4-row by 5-column dot grid.
       </p>
-    </section>
+    </SectionCard>
   );
 }

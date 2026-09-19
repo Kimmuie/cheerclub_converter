@@ -18,7 +18,8 @@ import type {
 
 interface ConverterState {
   groups: Group[];
-
+  reorderImages: (groupId: string, fromIndex: number, toIndex: number) => void;
+  renameImage: (groupId: string, imageId: string, name: string) => void;
   createGroup: (name: string) => string;
   renameGroup: (groupId: string, name: string) => void;
   deleteGroup: (groupId: string) => void;
@@ -69,6 +70,28 @@ export const useConverterStore = create<ConverterState>()(
         };
         set((state) => ({ groups: [...state.groups, newGroup] }));
         return id;
+      },
+
+      reorderImages: (groupId, fromIndex, toIndex) => {
+        set((state) => ({
+          groups: updateGroup(state.groups, groupId, (g) => {
+            const next = [...g.images];
+            const [moved] = next.splice(fromIndex, 1);
+            next.splice(toIndex, 0, moved);
+            return { ...g, images: next };
+          }),
+        }));
+      },
+
+      renameImage: (groupId, imageId, name) => {
+        set((state) => ({
+          groups: updateGroup(state.groups, groupId, (g) => ({
+            ...g,
+            images: g.images.map((img) =>
+              img.id === imageId ? { ...img, name } : img
+            ),
+          })),
+        }));
       },
 
       renameGroup: (groupId, name) => {
@@ -155,6 +178,8 @@ export const useConverterStore = create<ConverterState>()(
           })),
         }));
       },
+
+      
     }),
     {
       name: "cheerclub-converter-storage",

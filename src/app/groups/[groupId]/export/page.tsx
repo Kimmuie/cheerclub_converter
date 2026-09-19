@@ -3,8 +3,8 @@
 // src/app/groups/[groupId]/preview/page.tsx
 import { useParams, useRouter } from "next/navigation";
 import { useConverterStore } from "@/store/useConverterStore";
-import ConversionPreview from "@/components/ConversionPreview";
-import ExportPanel from "@/components/ExportPanel";
+import ConversionPreview from "./components/ConversionPreview";
+import ExportPanel from "./components/ExportPanel";
 
 export default function GroupExportPage() {
   const params = useParams<{ groupId: string }>();

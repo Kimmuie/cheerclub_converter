@@ -4,11 +4,15 @@
 // Runs conversion for every source image against the loaded palette/plate
 // size, shows per-image progress/error state, and previews generated tables
 // with navigation between plates.
+// Logic is unchanged from your working version — only the markup/classes
+// were restyled to match the new panel design.
 
 import { useMemo, useState } from "react";
+import { ListChecks } from "lucide-react";
 import { useConverterStore } from "@/store/useConverterStore";
 import { convertImage, ConversionError } from "@/lib/conversion";
 import type { ConversionResult } from "@/types";
+import SectionCard from "@/components/SectionCard";
 
 export default function ConversionPreview({ groupId }: { groupId: string }) {
   const group = useConverterStore((s) => s.getGroup(groupId));
@@ -75,18 +79,19 @@ export default function ConversionPreview({ groupId }: { groupId: string }) {
   if (!group) return null;
 
   return (
-    <section className="rounded-lg border border-gray-200 p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-semibold">4. Preview</h2>
+    <SectionCard
+      icon={ListChecks}
+      title="Queued Pre-Press Batches"
+      right={
         <button
           onClick={handleConvertAll}
           disabled={!canConvert || isConverting}
-          className="rounded-md bg-red-600 px-4 py-1.5 text-sm font-medium text-white disabled:opacity-40"
+          className="rounded-md bg-red-700 px-4 py-1.5 text-sm font-medium text-white hover:bg-red-800 disabled:opacity-40"
         >
           {isConverting ? "Converting…" : "Convert All Images"}
         </button>
-      </div>
-
+      }
+    >
       {!canConvert && (
         <p className="text-xs text-gray-400">
           Import a palette and at least one image to enable conversion.
@@ -103,8 +108,10 @@ export default function ConversionPreview({ groupId }: { groupId: string }) {
                     setActiveImageId(result.imageId);
                     setActivePlateIndex(0);
                   }}
-                  className={`w-full rounded px-2 py-1.5 text-left text-xs ${
-                    activeImageId === result.imageId ? "bg-red-50 font-medium text-red-700" : "hover:bg-gray-50"
+                  className={`w-full rounded-md px-2 py-1.5 text-left text-xs ${
+                    activeImageId === result.imageId
+                      ? "bg-red-50 font-medium text-red-700"
+                      : "hover:bg-gray-50"
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -144,7 +151,7 @@ export default function ConversionPreview({ groupId }: { groupId: string }) {
                   </button>
                 </div>
 
-                <div className="max-h-96 overflow-auto rounded border border-gray-100 p-2">
+                <div className="max-h-96 overflow-auto rounded-md border border-gray-200 p-2">
                   <table className="border-collapse text-xs">
                     <tbody>
                       {activePlate.cells.map((row, r) => (
@@ -176,19 +183,19 @@ export default function ConversionPreview({ groupId }: { groupId: string }) {
           </div>
         </div>
       )}
-    </section>
+    </SectionCard>
   );
 }
 
 function StatusBadge({ status }: { status: ConversionResult["status"] }) {
   const styles: Record<ConversionResult["status"], string> = {
     idle: "bg-gray-100 text-gray-500",
-    processing: "bg-amber-100 text-amber-700",
-    ready: "bg-green-100 text-green-700",
-    error: "bg-red-100 text-red-700",
+    processing: "bg-amber-50 text-amber-700",
+    ready: "bg-green-50 text-green-700",
+    error: "bg-red-50 text-red-700",
   };
   return (
-    <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${styles[status]}`}>
+    <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-medium ${styles[status]}`}>
       {status}
     </span>
   );
