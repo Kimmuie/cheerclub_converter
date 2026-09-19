@@ -25,6 +25,7 @@ export type ImageFormat = "bmp" | "png" | "jpg" | "jpeg";
 export interface ImageAsset {
   id: string;
   fileName: string;
+  name?: string;
   format: ImageFormat;
   /** Object URL or data URL used for <img> / canvas loading */
   src: string;

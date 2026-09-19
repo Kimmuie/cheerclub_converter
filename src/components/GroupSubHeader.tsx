@@ -24,22 +24,22 @@ export default function GroupSubHeader({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-white px-6 py-2.5">
-      <button
-        onClick={() => router.push("/")}
-        className="flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        Back to Groups
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => router.push("/")}
+          className="flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to Groups
+        </button>
 
-      <div className="flex items-center gap-2 text-sm">
-        <span className="h-2 w-2 rounded-full bg-red-700" />
-        <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
-          Current Group:
-        </span>
-        <span className="font-bold text-gray-900">{groupName}</span>
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
+            Current Group:
+          </span>
+          <span className="font-bold text-gray-900">{groupName}</span>
+        </div>
       </div>
-
       <div className="flex items-center gap-2">
         {[matrixLabel, paletteLabel, bitmapLabel].map((label) => (
           <span

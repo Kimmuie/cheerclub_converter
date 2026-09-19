@@ -7,12 +7,12 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useConverterStore } from "@/store/useConverterStore";
+import License from "@/components/License";
 import Navbar from "@/components/Navbar";
-import ImageUploader from "../components/ImageUploader";
-import PaletteUploader from "../components/PaletteUploader";
-import PlateMatrixForm from "../components/PlateMatrixForm";
-import ConversionPreview from "../components/ConversionPreview";
-import GroupSubHeader from "../components/GroupSubHeader";
+import ImageUploader from "./components/ImageUploader";
+import PaletteUploader from "./components/PaletteUploader";
+import PlateMatrixForm from "./components/PlateMatrixForm";
+import GroupSubHeader from "@/components/GroupSubHeader";
 
 export default function GroupWorkspacePage() {
   const params = useParams<{ groupId: string }>();
@@ -36,9 +36,10 @@ export default function GroupWorkspacePage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <Navbar
-        navLinks={[{ label: "Upload & Palette", href: `/groups/${group.id}` }]}
-        actionLabel="Export PDF"
-        onAction={() => router.push(`/groups/${group.id}/export`)}
+        navItems={[
+          { label: "Upload & Palette", href: `/groups/${group.id}` , active: true },
+          { label: "Export PDF", href: `/groups/${group.id}/export`},
+        ]}
       />
 
       <GroupSubHeader
@@ -63,6 +64,7 @@ export default function GroupWorkspacePage() {
           </div>
         </div>
       </div>
+    <License />
     </main>
   );
 }

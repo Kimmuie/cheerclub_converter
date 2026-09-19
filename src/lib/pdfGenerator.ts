@@ -73,7 +73,7 @@ function drawPlate(
  * Generates a single PDF covering the given results in "separate" mode:
  * one plate per page.
  */
-function generateSeparate(results: ConversionResult[], pageSize: ExportOptions["pageSize"]): jsPDF {
+function generateCompact(results: ConversionResult[], pageSize: ExportOptions["pageSize"]): jsPDF {
   const [w, h] = PAGE_SIZES[pageSize];
   const doc = new jsPDF({ unit: "mm", format: [w, h] });
 
@@ -106,7 +106,7 @@ function generateSeparate(results: ConversionResult[], pageSize: ExportOptions["
  * tables are packed left-to-right, top-to-bottom, flowing onto new pages
  * only when the current page is full. Works even for a single image.
  */
-function generateMerge(results: ConversionResult[], pageSize: ExportOptions["pageSize"]): jsPDF {
+function generateSeperate(results: ConversionResult[], pageSize: ExportOptions["pageSize"]): jsPDF {
   const [w, h] = PAGE_SIZES[pageSize];
   const doc = new jsPDF({ unit: "mm", format: [w, h] });
 
@@ -183,8 +183,8 @@ export function generatePdf(
   }
 
   return options.mode === "merge"
-    ? generateMerge(selected, options.pageSize)
-    : generateSeparate(selected, options.pageSize);
+    ? generateCompact(selected, options.pageSize)
+    : generateSeperate(selected, options.pageSize);
 }
 
 /** Triggers a browser download of the generated PDF. */
