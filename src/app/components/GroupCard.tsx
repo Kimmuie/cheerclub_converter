@@ -7,7 +7,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Users, UserPlus, Palette, Image as ImageIcon, ArrowRight, Trash } from "lucide-react";
-import type { Group } from "@/store/useConverterStore";
+import { useConverterStore } from "@/store/useConverterStore";
+import type { Group } from "@/types";
 import Alert from "@/components/Alert";
 
 interface GroupCardProps {
