@@ -55,55 +55,57 @@ export default function GroupExportPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col">
       <Navbar
         navItems={[
           { label: "Upload & Palette", href: `/groups/${group.id}` },
           { label: "Export PDF", href: `/groups/${group.id}/export`, active: true },
         ]}
       />
+      <main className="flex-1 bg-gray-50">
 
-      <GroupSubHeader
-        groupName={group.name}
-        matrixLabel={
-          group.plateSize
-            ? `${group.plateSize.rows}×${group.plateSize.columns} Matrix`
-            : "No Matrix Set"
-        }
-        paletteLabel={`${group.palette?.colors.length ?? 0} Index ACO`}
-        bitmapLabel={`${group.images.length} Loaded Bitmaps`}
-      />
+        <GroupSubHeader
+          groupName={group.name}
+          matrixLabel={
+            group.plateSize
+              ? `${group.plateSize.rows}×${group.plateSize.columns} Matrix`
+              : "No Matrix Set"
+          }
+          paletteLabel={`${group.palette?.colors.length ?? 0} Index ACO`}
+          bitmapLabel={`${group.images.length} Loaded Bitmaps`}
+        />
 
-      <div className="mx-auto max-w-6xl p-6">
+        <div className="mx-auto max-w-6xl p-6">
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
-          <div className="space-y-6">
-            <LayoutArchitecturePanel groupId={group.id} mode={group.exportOptions.mode} />
-            <SheetMetricsPanel
-              pageSize={group.exportOptions.pageSize}
-              plateSize={group.plateSize}
-              paletteColorCount={group.palette?.colors.length ?? 0}
-            />
-            <BatchPayloadPanel
-              groupName={group.name}
-              readyResults={readyResults}
-              exportOptions={group.exportOptions}
-              palette={group.palette}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
+            <div className="space-y-6">
+              <LayoutArchitecturePanel groupId={group.id} mode={group.exportOptions.mode} />
+              <SheetMetricsPanel
+                pageSize={group.exportOptions.pageSize}
+                plateSize={group.plateSize}
+                paletteColorCount={group.palette?.colors.length ?? 0}
+              />
+              <BatchPayloadPanel
+                groupName={group.name}
+                readyResults={readyResults}
+                exportOptions={group.exportOptions}
+                palette={group.palette}
+              />
+            </div>
+
+            <PreviewPane
+              groupId={group.id}
+              // groupName={group.name}
+              // mode={group.exportOptions.mode}
+              // pageSize={group.exportOptions.pageSize}
+              // onCyclePageSize={cyclePageSize}
+              // readyResults={readyResults}
+              // palette={group.palette}
             />
           </div>
-
-          <PreviewPane
-            groupId={group.id}
-            groupName={group.name}
-            mode={group.exportOptions.mode}
-            pageSize={group.exportOptions.pageSize}
-            onCyclePageSize={cyclePageSize}
-            readyResults={readyResults}
-            palette={group.palette}
-          />
         </div>
-      </div>
-      <License />
-    </main>
+      </main>
+    <License />
+  </div>
   );
 }

@@ -223,7 +223,7 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
     <button
       onClick={handleConvertAll}
       disabled={!canConvert || isConverting}
-      className="flex items-center gap-1.5 rounded-md bg-red-700 px-3 py-1.5 text-xs font-bold text-white hover:bg-red-800 disabled:opacity-40"
+      className="flex items-center gap-1.5 rounded-md bg-red-700 px-3 py-1.5 text-xs font-bold text-white hover:bg-red-800 disabled:opacity-40 cursor-pointer"
     >
       <RefreshCw className={`h-3.5 w-3.5 ${isConverting ? "animate-spin" : ""}`} />
       {isConverting
@@ -237,7 +237,7 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
   const colorToggleButton = (
     <button
       onClick={() => setColorMode((m) => (m === "color" ? "outline" : "color"))}
-      className="flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
+      className="flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 cursor-pointer"
       title="Toggle between colored fills and a transparent black-grid outline"
     >
       {colorMode === "color" ? (
@@ -297,7 +297,7 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
                     setSelectedImageId(e.target.value);
                     setSeparateSheetIndex(0);
                   }}
-                  className="rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600"
+                  className="rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 cursor-pointer"
                 >
                   {readyResults.map((r) => (
                     <option key={r.imageId} value={r.imageId}>
@@ -449,13 +449,13 @@ function SheetNav({
 }) {
   return (
     <div className="flex items-center gap-2 text-xs text-gray-500">
-      <button onClick={onPrev} disabled={index === 0} className="disabled:opacity-30">
+      <button onClick={onPrev} disabled={index === 0} className="disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
         <ChevronLeft className="h-4 w-4" />
       </button>
       <span>
         Sheet {count === 0 ? 0 : index + 1} / {count}
       </span>
-      <button onClick={onNext} disabled={index >= count - 1} className="disabled:opacity-30">
+      <button onClick={onNext} disabled={index >= count - 1} className="disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
         <ChevronRight className="h-4 w-4" />
       </button>
     </div>

@@ -27,7 +27,7 @@ export default function GroupSubHeader({
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.push("/")}
-          className="flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
+          className="cursor-pointer flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to Groups

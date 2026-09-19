@@ -23,7 +23,7 @@ export default function HomePage() {
   const handleCreate = (name: string) => {
     const id = createGroup(name);
     setModalOpen(false);
-    router.push(`/groups/${id}`);
+    // router.push(`/groups/${id}`);
   };
 
   return (

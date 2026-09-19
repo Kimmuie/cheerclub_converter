@@ -6,8 +6,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Platform-Web-4285F4?logo=googlechrome" />
-  <img src="https://img.shields.io/github/license/Kimmuie/CheerClubConverter" />
-  <img src="https://img.shields.io/github/stars/Kimmuie/CheerClubConverter?style=social" />
+  <img src="https://img.shields.io/github/license/Kimmuie/cheerclub_converter" />
+  <img src="https://img.shields.io/github/stars/Kimmuie/cheerclub_converter?style=social" />
 </p>
 
 ## ✨ Overview
@@ -16,7 +16,7 @@
 
 Simply upload an image of your cheer design and convert it into a **print-ready PDF template** for use during rehearsals and performances.
 
-No more manually recreating grids or preparing templates from scratch — **upload, convert, and get ready to cheer.**
+No more manually recreating grids or preparing templates from scratch — **upload, convert**
 
 ## 🚀 Features
 
@@ -45,11 +45,11 @@ Try CheerClub Converter online:
       <img src="https://skillicons.dev/icons?i=tailwind" width="48" alt="Tailwind" />
     </a>
   </td>
-  <td width="100">
+  <!-- <td width="100">
     <a href="https://supabase.com/" title="Supabase">
       <img src="https://skillicons.dev/icons?i=supabase" width="48" alt="React" />
     </a>
-  </td>
+  </td> -->
   <td width="100">
     <a href="https://vercel.com" title="Vercel">
       <img src="https://skillicons.dev/icons?i=vercel" width="48" alt="Vercel" />
@@ -59,7 +59,7 @@ Try CheerClub Converter online:
 <tr align="center">
   <td>React</td>
   <td>Tailwind</td>
-  <td>Supabase</td>
+  <!-- <td>Supabase</td> -->
   <td>Vercel</td>
 </tr>
 </table>
@@ -70,9 +70,21 @@ Try CheerClub Converter online:
 <tr>
 <td align="center">
   <img src="./docs/UI1.png" width="100%"/>
+  <br><b>Group Management</b>
 </td>
 <td align="center">
   <img src="./docs/UI2.png" width="100%"/>
+  <br><b>Upload & Palette</b>
+</td>
+</tr>
+<tr>
+<td align="center">
+  <img src="./docs/UI3.png" width="100%"/>
+  <br><b>Compact Matrix</b>
+</td>
+<td align="center">
+  <img src="./docs/UI4.png" width="100%"/>
+  <br><b>Seperate Each</b>
 </td>
 </tr>
 </table>

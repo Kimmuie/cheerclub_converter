@@ -34,37 +34,40 @@ export default function GroupWorkspacePage() {
 
 
   return (
-    <main className="min-h-screen bg-gray-50">
+
+    <div className="min-h-screen flex flex-col">
       <Navbar
         navItems={[
           { label: "Upload & Palette", href: `/groups/${group.id}` , active: true },
           { label: "Export PDF", href: `/groups/${group.id}/export`},
         ]}
       />
+      <main className="flex-1 bg-gray-50">
 
-      <GroupSubHeader
-        groupName={group.name}
-        matrixLabel={
-          group.plateSize
-            ? `${group.plateSize.rows}×${group.plateSize.columns} Matrix`
-            : "No Matrix Set"
-        }
-        paletteLabel={`${group.palette?.colors.length ?? 0} Index ACO`}
-        bitmapLabel={`${group.images.length} Loaded Bitmaps`}
-      />
+        <GroupSubHeader
+          groupName={group.name}
+          matrixLabel={
+            group.plateSize
+              ? `${group.plateSize.rows}×${group.plateSize.columns} Matrix`
+              : "No Matrix Set"
+          }
+          paletteLabel={`${group.palette?.colors.length ?? 0} Index ACO`}
+          bitmapLabel={`${group.images.length} Loaded Bitmaps`}
+        />
 
-      <div className="mx-auto max-w-6xl p-6">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="space-y-6">
-            <PaletteUploader groupId={group.id} />
-            <PlateMatrixForm groupId={group.id} />
-          </div>
-          <div className="space-y-6">
-            <ImageUploader groupId={group.id} />
+        <div className="mx-auto max-w-6xl p-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="space-y-6">
+              <PaletteUploader groupId={group.id} />
+              <PlateMatrixForm groupId={group.id} />
+            </div>
+            <div className="space-y-6">
+              <ImageUploader groupId={group.id} />
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     <License />
-    </main>
+  </div>
   );
 }
