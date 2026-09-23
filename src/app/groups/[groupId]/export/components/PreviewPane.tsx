@@ -7,22 +7,16 @@
 //  2. Merge/"Compact Matrix" mode is now locked to A4 — no more cycle
 //     button. If exportOptions.pageSize is ever something else while in
 //     merge mode, an effect snaps it back to "A4".
-//  3. Separate mode pagination was wrong: it was slicing the raw `plates`
-//     array in whatever order convertImage returned it, which doesn't
-//     necessarily match reading order. It now parses every plate's real
-//     label into {row, column} (row = leading letters, column = trailing
-//     digits — same convention as before), builds the true set of rows and
-//     columns present, and pages through in fixed-size COLUMN windows while
-//     showing every row each page. So page 1 = A1-A5, B1-B5, ... F1-F5 and
-//     page 2 = A6-A10, B6-B10, ... F6-F10, matching real reading order
-//     instead of array order.
+//  3. Separate mode parses every plate's real label into {row, column}.
+//  4. Separate mode supports Image order, By row, and By column pagination.
+//  5. Both modes use a fixed A4 preview, with Separate capacity calculated
+//     from the actual converted plate dimensions.
 
 import { useMemo, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, FileText, Palette as PaletteIcon, RefreshCw, Square } from "lucide-react";
 import { useConverterStore } from "@/store/useConverterStore";
 import { convertImage, ConversionError } from "@/lib/conversion";
 import type { ConversionResult, Palette } from "@/types";
-import { SHEET_TABLE_COLUMNS } from "./SheetMetricsPanel";
 
 interface PreviewPaneProps {
   groupId: string;
@@ -36,6 +30,53 @@ function splitLabel(label: string) {
   const row = label.match(/^[A-Za-z]+/)?.[0] ?? label;
   const column = Number(label.match(/\d+$/)?.[0] ?? "0");
   return { row, column };
+}
+
+// How the separate-mode sheets are paginated:
+//  - "image"  reading order like the source image: column window first,
+//             then as many rows as fit on one A4 page within that window.
+//  - "row"    one physical row per page (chunked further if the row is
+//             wider than a page) — a new row always starts a new page.
+//  - "column" mirror of "row": one physical column per page.
+type SeparateSortMode = "image" | "row" | "column";
+
+const SORT_MODE_LABELS: Record<SeparateSortMode, string> = {
+  image: "Image order",
+  row: "By row",
+  column: "By column",
+};
+
+// A4 preview is rendered at 595 x 842 CSS pixels. Mini plates use
+// 20 x 20px cells, an approximately 16px plate-label, and 8px gaps.
+// Capacity is calculated from the actual plate dimensions instead of
+// hard-coding a row/column count.
+const A4_WIDTH = 595;
+const A4_HEIGHT = 842;
+const PAGE_PADDING = 32;
+const PLATE_GAP = 8;
+const CELL_SIZE = 20;
+const PLATE_LABEL_HEIGHT = 16;
+const PAGE_HEADER_HEIGHT = 100;
+
+function getPageCapacity(cells: number[][] | undefined) {
+  const plateRows = Math.max(cells?.length ?? 1, 1);
+  const plateColumns = Math.max(cells?.[0]?.length ?? 1, 1);
+  const plateWidth = plateColumns * CELL_SIZE;
+  const plateHeight = plateRows * CELL_SIZE + PLATE_LABEL_HEIGHT;
+  const availableWidth = A4_WIDTH - PAGE_PADDING * 2 + 2;
+  const availableHeight = A4_HEIGHT - PAGE_PADDING * 2 - PAGE_HEADER_HEIGHT;
+
+  return {
+    rows: Math.max(1, Math.floor((availableHeight + PLATE_GAP) / (plateHeight + PLATE_GAP))),
+    columns: Math.max(1, Math.floor((availableWidth + PLATE_GAP) / (plateWidth + PLATE_GAP))),
+  };
+}
+
+function chunkArray<T>(items: T[], size: number): T[][] {
+  if (size <= 0) return items.length ? [items] : [];
+  const out: T[][] = [];
+  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
+  return out;
 }
 
 function MiniPlateTable({
@@ -98,6 +139,7 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
   const [mergeSheetIndex, setMergeSheetIndex] = useState(0);
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [separateSheetIndex, setSeparateSheetIndex] = useState(0);
+  const [sortMode, setSortMode] = useState<SeparateSortMode>("image");
 
   const results = group?.results ?? [];
   const readyResults = useMemo(
@@ -187,28 +229,88 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
     return Array.from(set).sort((a, b) => a - b);
   }, [platesWithPosition]);
 
-  const separateSheetCount = Math.max(
-    1,
-    Math.ceil(uniqueColumns.length / SHEET_TABLE_COLUMNS)
+  type PositionedPlate = (typeof platesWithPosition)[number];
+  type SeparatePage = { rows: string[]; columns: number[]; plates: PositionedPlate[] };
+
+  // Calculate A4 capacity from the actual converted plate dimensions.
+  // A normal 4x5 plate gives 5 plates across and 6 plates down.
+  const pageCapacity = useMemo(
+    () => getPageCapacity(selectedResult?.plates[0]?.cells),
+    [selectedResult]
   );
 
-  const columnsThisPage = uniqueColumns.slice(
-    separateSheetIndex * SHEET_TABLE_COLUMNS,
-    separateSheetIndex * SHEET_TABLE_COLUMNS + SHEET_TABLE_COLUMNS
-  );
+  // Build all Separate pages before rendering. Row/column modes keep the
+  // same row/column going onto another page until it is completely finished.
+  const separatePages = useMemo<SeparatePage[]>(() => {
+    if (uniqueRows.length === 0 || uniqueColumns.length === 0) return [];
 
-  // Row-major, column-window order: every row for the current column slice,
-  // e.g. A1-A5, B1-B5, ... on page 1, then A6-A10, B6-B10, ... on page 2.
-  const separatePagePlates = useMemo(() => {
-    const list: typeof platesWithPosition = [];
-    for (const row of uniqueRows) {
-      for (const col of columnsThisPage) {
-        const found = platesWithPosition.find((p) => p.row === row && p.column === col);
-        if (found) list.push(found);
+    const findPlate = (row: string, col: number) =>
+      platesWithPosition.find((p) => p.row === row && p.column === col);
+
+    const pages: SeparatePage[] = [];
+    const platesPerPage = pageCapacity.rows * pageCapacity.columns;
+
+    if (sortMode === "row") {
+      // Finish one logical row before moving to the next. A row can use the
+      // whole A4 sheet, so a 4x5 plate layout fits A1-A30 on one page.
+      for (const row of uniqueRows) {
+        const rowPlates = platesWithPosition
+          .filter((p) => p.row === row)
+          .sort((a, b) => a.column - b.column);
+
+        for (const chunk of chunkArray(rowPlates, platesPerPage)) {
+          pages.push({
+            rows: [row],
+            columns: chunk.map((p) => p.column),
+            plates: chunk,
+          });
+        }
+      }
+} else if (sortMode === "column") {
+  // Keep the same numbered column together.
+  // Example: A1, B1, C1 ... Z1, then A2, B2, C2 ... Z2.
+  for (const column of uniqueColumns) {
+    const columnPlates = platesWithPosition
+      .filter((p) => p.column === column)
+      .sort((a, b) => a.row.localeCompare(b.row));
+
+    for (const chunk of chunkArray(columnPlates, pageCapacity.rows)) {
+      pages.push({
+        rows: chunk.map((p) => p.row),
+        columns: [column],
+        plates: chunk,
+      });
+    }
+  }
+} else {
+      // Image order: fill the A4 sheet in normal reading order.
+      for (const cols of chunkArray(uniqueColumns, pageCapacity.columns)) {
+        for (const rows of chunkArray(uniqueRows, pageCapacity.rows)) {
+          const plates: PositionedPlate[] = [];
+          for (const row of rows) {
+            for (const col of cols) {
+              const found = findPlate(row, col);
+              if (found) plates.push(found);
+            }
+          }
+          if (plates.length > 0) pages.push({ rows, columns: cols, plates });
+        }
       }
     }
-    return list;
-  }, [uniqueRows, columnsThisPage, platesWithPosition]);
+
+    return pages;
+  }, [sortMode, uniqueRows, uniqueColumns, platesWithPosition, pageCapacity]);
+
+  const separateSheetCount = Math.max(1, separatePages.length);
+  const currentSeparatePage = separatePages[separateSheetIndex] ?? null;
+  const columnsThisPage = currentSeparatePage?.columns ?? [];
+  const separatePagePlates = currentSeparatePage?.plates ?? [];
+
+  // Reset to the first page whenever the sort mode changes — page indices
+  // from one mode don't correspond to the same content in another.
+  useEffect(() => {
+    setSeparateSheetIndex(0);
+  }, [sortMode, selectedImageId]);
 
   if (!group) return null;
 
@@ -257,14 +359,15 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <FileText className="h-4 w-4 text-red-700" />
-          <h2 className="text-sm font-bold text-gray-900">Preview</h2>
+        <div className="flex justify-between w-full gap-2">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-red-700" />
+            <h2 className="text-sm font-bold text-gray-900">Preview</h2>
+          </div>
+          {convertButton}
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          {convertButton}
-          {colorToggleButton}
+        <div className="flex flex-wrap items-center justify-between w-full gap-3">
 
           {readyResults.length > 0 &&
             (mode === "merge" ? (
@@ -277,9 +380,10 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
                     setMergeSheetIndex((i) => Math.min(mergeSheetCount - 1, i + 1))
                   }
                 />
-                <span className="rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-400">
+                {/* <span className="rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-400">
                   Page: A4
-                </span>
+                </span> */}
+                {colorToggleButton}
               </>
             ) : (
               <>
@@ -291,20 +395,32 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
                     setSeparateSheetIndex((i) => Math.min(separateSheetCount - 1, i + 1))
                   }
                 />
-                <select
-                  value={selectedResult?.imageId ?? ""}
-                  onChange={(e) => {
-                    setSelectedImageId(e.target.value);
-                    setSeparateSheetIndex(0);
-                  }}
-                  className="rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 cursor-pointer"
-                >
-                  {readyResults.map((r) => (
-                    <option key={r.imageId} value={r.imageId}>
-                      {r.imageFileName}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex flex-wrap items-center gap-2">
+                  {colorToggleButton}
+                  <select
+                    value={selectedResult?.imageId ?? ""}
+                    onChange={(e) => setSelectedImageId(e.target.value)}
+                    className="rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 cursor-pointer"
+                  >
+                    {readyResults.map((r) => (
+                      <option key={r.imageId} value={r.imageId}>
+                        {r.imageFileName}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={sortMode}
+                    onChange={(e) => setSortMode(e.target.value as SeparateSortMode)}
+                    title="How rows and columns are split across pages"
+                    className="rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 cursor-pointer"
+                  >
+                    {(Object.keys(SORT_MODE_LABELS) as SeparateSortMode[]).map((key) => (
+                      <option key={key} value={key}>
+                        {SORT_MODE_LABELS[key]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </>
             ))}
         </div>
@@ -317,7 +433,7 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
         </p>
       )}
 
-      {results.length > 0 && (
+      {/* {results.length > 0 && (
         <ul className="mb-4 flex flex-wrap gap-2">
           {results.map((r) => (
             <li key={r.imageId} className="flex items-center gap-1.5 text-xs">
@@ -330,7 +446,7 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
             </li>
           ))}
         </ul>
-      )}
+      )} */}
 
       {readyResults.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-gray-200 p-12 text-center">
@@ -344,16 +460,8 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
       ) : (
         <div className="overflow-auto rounded-lg bg-gray-50 p-6">
           <div
-            className={
-              mode === "merge"
-                ? "mx-auto max-w-full bg-white p-8 shadow-sm"
-                : "mx-auto min-h-[600px] w-fit max-w-full bg-white p-8 shadow-sm"
-            }
-            style={
-              mode === "merge"
-                ? { width: 595, aspectRatio: "210 / 297" }
-                : undefined
-            }
+            className="mx-auto max-w-full overflow-hidden bg-white p-8 shadow-sm"
+            style={{ width: 595, height: 842 }}
           >
             <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-red-700">
               CheerClub Generator
@@ -373,7 +481,7 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
                     )}
                   </div>
                 </div>
-                <div className="mt-4 flex flex-wrap gap-8">
+                <div className="mt-4 flex flex-wrap gap-2">
                   {readyResults.map((result) => {
                     const cells = result.plates[mergeSheetIndex]?.cells;
                     return (
@@ -405,12 +513,26 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
                   <p className="mb-4 text-[10px] uppercase tracking-wide text-gray-400">
                     Sheet {String(separateSheetIndex + 1).padStart(2, "0")} (
                     {separatePagePlates.length} Tables)
+                    {sortMode === "row" && currentSeparatePage?.rows[0] && (
+                      <> · Row {currentSeparatePage.rows[0]}</>
+                    )}
+                    {sortMode === "column" && currentSeparatePage?.columns[0] !== undefined && (
+                      <> · Column {currentSeparatePage.columns[0]}</>
+                    )}
                   </p>
 
                   <div
-                    className="grid gap-x-8 gap-y-4"
+                    className="grid gap-x-2 gap-y-2"
                     style={{
-                      gridTemplateColumns: `repeat(${Math.max(columnsThisPage.length, 1)}, max-content)`,
+                      gridTemplateColumns:
+                      `repeat(${Math.max(
+                        sortMode === "column"
+                          ? 1
+                          : sortMode === "row"
+                            ? pageCapacity.columns
+                            : columnsThisPage.length,
+                        1
+                      )}, max-content)`,
                     }}
                   >
                     {separatePagePlates.map(({ plate }, i) => (
@@ -460,4 +582,4 @@ function SheetNav({
       </button>
     </div>
   );
-} 
+}
