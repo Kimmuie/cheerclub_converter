@@ -135,11 +135,15 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
   const setExportOptions = useConverterStore((s) => s.setExportOptions);
 
   const [isConverting, setIsConverting] = useState(false);
-  const [colorMode, setColorMode] = useState<ColorMode>("outline");
   const [mergeSheetIndex, setMergeSheetIndex] = useState(0);
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [separateSheetIndex, setSeparateSheetIndex] = useState(0);
-  const [sortMode, setSortMode] = useState<SeparateSortMode>("image");
+
+  // Single source of truth now lives in the store's exportOptions, so
+  // whatever the user picks here is exactly what generatePdf() sees — no
+  // more local-only toggle that never made it into the exported file.
+  const colorMode: ColorMode = group?.exportOptions.colorMode ?? "outline";
+  const sortMode: SeparateSortMode = group?.exportOptions.sortMode ?? "image";
 
   const results = group?.results ?? [];
   const readyResults = useMemo(
@@ -339,7 +343,9 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
 
   const colorToggleButton = (
     <button
-      onClick={() => setColorMode((m) => (m === "color" ? "outline" : "color"))}
+      onClick={() =>
+        setExportOptions(groupId, { colorMode: colorMode === "color" ? "outline" : "color" })
+      }
       className="flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 cursor-pointer"
       title="Toggle between colored fills and a transparent black-grid outline"
     >
@@ -410,7 +416,9 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
                 </select>
                 <select
                   value={sortMode}
-                  onChange={(e) => setSortMode(e.target.value as SeparateSortMode)}
+                  onChange={(e) =>
+                    setExportOptions(groupId, { sortMode: e.target.value as SeparateSortMode })
+                  }
                   title="How rows and columns are split across pages"
                   className="rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 cursor-pointer"
                 >

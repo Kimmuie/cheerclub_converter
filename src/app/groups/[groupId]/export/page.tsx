@@ -90,6 +90,7 @@ export default function GroupExportPage() {
                 readyResults={readyResults}
                 exportOptions={group.exportOptions}
                 palette={group.palette}
+                groupId={group.id}
               />
             </div>
 

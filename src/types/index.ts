@@ -69,6 +69,8 @@ export interface ExportOptions {
   pageSize: "A4" | "A3" | "Letter";
   /** Which conversion results (by ImageAsset id) to include */
   imageIds: string[];
+  colorMode?: "color" | "outline";
+  sortMode?: "image" | "row" | "column";
 }
 
 export type ExportStatus = "idle" | "generating" | "success" | "error";

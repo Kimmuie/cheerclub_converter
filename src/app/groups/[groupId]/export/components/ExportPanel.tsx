@@ -36,7 +36,7 @@ export default function ExportPanel({ groupId }: { groupId: string }) {
     setStatus("generating");
     setErrorMessage(null);
     try {
-      const doc = generatePdf(group.results, exportOptions, group.palette);
+      const doc = generatePdf(group.results, exportOptions, group.palette, groupId);
       downloadPdf(doc, `${group.name.replace(/\s+/g, "_")}_${exportOptions.mode}`);
       setStatus("success");
     } catch (err) {

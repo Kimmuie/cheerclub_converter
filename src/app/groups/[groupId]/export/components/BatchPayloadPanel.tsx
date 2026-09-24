@@ -18,6 +18,7 @@ interface BatchPayloadPanelProps {
   readyResults: ConversionResult[];
   exportOptions: ExportOptions;
   palette: Palette | null;
+  groupId: string;
 }
 
 export default function BatchPayloadPanel({
@@ -25,6 +26,7 @@ export default function BatchPayloadPanel({
   readyResults,
   exportOptions,
   palette,
+  groupId,
 }: BatchPayloadPanelProps) {
   const [status, setStatus] = useState<ExportStatus>("idle");
   const [zipStatus, setZipStatus] = useState<ExportStatus>("idle");
@@ -45,7 +47,7 @@ export default function BatchPayloadPanel({
     setStatus("generating");
     setErrorMessage(null);
     try {
-      const doc = generatePdf(selectedResults, exportOptionsForCall, palette);
+      const doc = generatePdf(selectedResults, exportOptionsForCall, palette, groupId);
       downloadPdf(doc, `${groupName.replace(/\s+/g, "_")}_${exportOptions.mode}`);
       setStatus("success");
     } catch (err) {
@@ -68,7 +70,7 @@ export default function BatchPayloadPanel({
       const zip = new JSZip();
 
       for (const result of selectedResults) {
-        const doc = generatePdf([result], { ...exportOptions, imageIds: [result.imageId] }, palette);
+        const doc = generatePdf([result], { ...exportOptions, imageIds: [result.imageId] }, palette, groupId);
         // Assumes a jsPDF-compatible doc — adjust if generatePdf returns
         // something else (e.g. doc.output("arraybuffer") or a raw Buffer).
         const blob: Blob = doc.output("blob");
