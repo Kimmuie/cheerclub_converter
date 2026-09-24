@@ -266,23 +266,24 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
           });
         }
       }
-} else if (sortMode === "column") {
-  // Keep the same numbered column together.
-  // Example: A1, B1, C1 ... Z1, then A2, B2, C2 ... Z2.
-  for (const column of uniqueColumns) {
-    const columnPlates = platesWithPosition
-      .filter((p) => p.column === column)
-      .sort((a, b) => a.row.localeCompare(b.row));
+    } else if (sortMode === "column") {
+      // Mirror of row mode: finish one logical column before moving to the
+      // next. A 4x5 plate layout therefore fits A1-A30 vertically ordered
+      // plates from column 1 across one A4 page.
+      for (const column of uniqueColumns) {
+        const columnPlates = platesWithPosition
+          .filter((p) => p.column === column)
+          .sort((a, b) => a.row.localeCompare(b.row));
 
-    for (const chunk of chunkArray(columnPlates, pageCapacity.rows)) {
-      pages.push({
-        rows: chunk.map((p) => p.row),
-        columns: [column],
-        plates: chunk,
-      });
-    }
-  }
-} else {
+        for (const chunk of chunkArray(columnPlates, platesPerPage)) {
+          pages.push({
+            rows: chunk.map((p) => p.row),
+            columns: [column],
+            plates: chunk,
+          });
+        }
+      }
+    } else {
       // Image order: fill the A4 sheet in normal reading order.
       for (const cols of chunkArray(uniqueColumns, pageCapacity.columns)) {
         for (const rows of chunkArray(uniqueRows, pageCapacity.rows)) {
@@ -366,8 +367,7 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
           </div>
           {convertButton}
         </div>
-
-        <div className="flex flex-wrap items-center justify-between w-full gap-3">
+       <div className="flex flex-wrap items-center justify-between w-full gap-3">
 
           {readyResults.length > 0 &&
             (mode === "merge" ? (
@@ -395,32 +395,32 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
                     setSeparateSheetIndex((i) => Math.min(separateSheetCount - 1, i + 1))
                   }
                 />
-                <div className="flex flex-wrap items-center gap-2">
-                  {colorToggleButton}
-                  <select
-                    value={selectedResult?.imageId ?? ""}
-                    onChange={(e) => setSelectedImageId(e.target.value)}
-                    className="rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 cursor-pointer"
-                  >
-                    {readyResults.map((r) => (
-                      <option key={r.imageId} value={r.imageId}>
-                        {r.imageFileName}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    value={sortMode}
-                    onChange={(e) => setSortMode(e.target.value as SeparateSortMode)}
-                    title="How rows and columns are split across pages"
-                    className="rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 cursor-pointer"
-                  >
-                    {(Object.keys(SORT_MODE_LABELS) as SeparateSortMode[]).map((key) => (
-                      <option key={key} value={key}>
-                        {SORT_MODE_LABELS[key]}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {colorToggleButton}
+                <select
+                  value={selectedResult?.imageId ?? ""}
+                  onChange={(e) => setSelectedImageId(e.target.value)}
+                  className="rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 cursor-pointer"
+                >
+                  {readyResults.map((r) => (
+                    <option key={r.imageId} value={r.imageId}>
+                      {r.imageFileName}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={sortMode}
+                  onChange={(e) => setSortMode(e.target.value as SeparateSortMode)}
+                  title="How rows and columns are split across pages"
+                  className="rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 cursor-pointer"
+                >
+                  {(Object.keys(SORT_MODE_LABELS) as SeparateSortMode[]).map((key) => (
+                    <option key={key} value={key}>
+                      {SORT_MODE_LABELS[key]}
+                    </option>
+                  ))}
+                </select>
+              </div>       
               </>
             ))}
         </div>
@@ -527,7 +527,7 @@ export default function PreviewPane({ groupId }: PreviewPaneProps) {
                       gridTemplateColumns:
                       `repeat(${Math.max(
                         sortMode === "column"
-                          ? 1
+                          ? pageCapacity.columns
                           : sortMode === "row"
                             ? pageCapacity.columns
                             : columnsThisPage.length,
